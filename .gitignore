@@ -67,3 +67,5 @@ CPackSourceConfig.cmake
 *.exe
 *.out
 *.app
+
+cmake-build-*
