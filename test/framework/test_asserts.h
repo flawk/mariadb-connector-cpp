@@ -47,7 +47,7 @@
 
 #define TEST_ERR_LOCATION __FILE__ ":L#" XSTR(__LINE__) " "
 #define TEST_ERR_LINE     ":L#" XSTR(__LINE__)" "
-#define TEST_INSTR_EXEPTION_MSG(_ORIG_EXPTN_MSG) std::string __tst_msg(_ORIG_EXPTN_MSG);__tst_msg.append("("TEST_ERR_LINE")")
+#define TEST_INSTR_EXEPTION_MSG(_ORIG_EXPTN_MSG) std::string __tst_msg(_ORIG_EXPTN_MSG);__tst_msg.append("(" TEST_ERR_LINE ")")
 #define TEST_THROW(_EXPTN_CLASS,_EXPTN) do { TEST_INSTR_EXEPTION_MSG(_EXPTN.what()); throw _EXPTN_CLASS(__tst_msg.c_str(), _EXPTN.getSQLState().c_str(), _EXPTN.getErrorCode()); } while (false)
 
 namespace testsuite
