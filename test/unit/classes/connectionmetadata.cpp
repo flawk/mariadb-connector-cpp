@@ -1201,7 +1201,13 @@ void connectionmetadata::getIndexInfo()
       ASSERT_EQUALS(false, res->getBoolean("NON_UNIQUE"));
       ASSERT(res->next());
       ASSERT_EQUALS("idx_col4_col5", res->getString("INDEX_NAME"));
-      ASSERT_EQUALS("A", res->getString("ASC_OR_DESC")); // Server does not support desc
+      if (getServerVersion(con) >= 108000) {
+        ASSERT_EQUALS("D", res->getString("ASC_OR_DESC"));
+      }
+      else {
+        ASSERT_EQUALS("A", res->getString("ASC_OR_DESC")); // Server does not support desc
+      }
+
       ASSERT_EQUALS("col5", res->getString("COLUMN_NAME"));
       ASSERT_EQUALS(true, res->getBoolean("NON_UNIQUE"));
       ASSERT(res->next());

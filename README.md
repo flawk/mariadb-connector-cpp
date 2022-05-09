@@ -92,6 +92,8 @@ Not complete list of supported options - mostly newly added or with new aliases:
 | **`jdbcCompliantTruncation`** |Truncation error will be thrown as error, and not as warning|*bool* |true||
 | **`useCharacterEncoding`** |Character set used for text encoding.|*string* ||OPT_SET_CHARSET_NAME,useCharset|
 | **`credentialType`** |Default authentication client-side plugin to use.|*string* ||defaultAuth|
+| **`allowLocalInfile`** |Permits loading data from local file(on the client) with LOAD DATA LOCAL INFILE statement.|*bool* |false||
+| **`useResetConnection`** |Makes Connection::reset() method to issue conenction reset command at the server.|*bool* |false||
 
 
 Properties is map of strings, and is another way to pass optional parameters.

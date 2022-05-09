@@ -36,7 +36,7 @@ namespace mariadb
   {
     //std::to_string is not precise enough. at least on windows it does just sprintf("%f")
     std::stringstream doubleAsString("");
-    doubleAsString << std::setprecision(30) << value;
+    doubleAsString << std::scientific << std::setprecision(30) << value;
     str.append(doubleAsString.str().c_str());
   }
 
