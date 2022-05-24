@@ -210,6 +210,7 @@ namespace mariadb
   namespace Weak
   {
     typedef std::weak_ptr<MariaDbConnection> MariaDbConnection;
+    typedef std::weak_ptr<Results> Results;
   }
 } //---- namespace mariadb
 

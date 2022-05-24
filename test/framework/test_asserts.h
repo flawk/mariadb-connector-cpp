@@ -136,6 +136,19 @@ void assertLessThan(unsigned int expected, unsigned int result
                     , const char * file, int line);
 
 bool fuzzyEquals(double expected, double result, double fuzzyEpsilon);
+
+template <class T>
+bool contains(const std::vector<T> container, const T& val)
+{
+  for (auto& el : container)
+  {
+    if (el == val)
+    {
+      return true;
+    }
+  }
+  return false;
+}
 }
 
 
