@@ -379,7 +379,8 @@ IF(NOT WITH_SSL)
   SET(CONC_WITH_SSL ON)
 ENDIF()
 ### Including C/C subproject
-IF(EXISTS ${CMAKE_SOURCE_DIR}/libmariadb)
+ADD_OPTION(USE_SYSTEM_INSTALLED_LIB "Use system installed libmariadb Connector/C" OFF)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/libmariadb AND NOT USE_SYSTEM_INSTALLED_LIB)
   IF(GIT_BUILD_SRCPKG)
     # We don't want conn/c (wrong) src pkg to be built.
     SET(GIT_BUILD_SRCPKG FALSE)
@@ -412,7 +413,6 @@ IF(EXISTS ${CMAKE_SOURCE_DIR}/libmariadb)
   ENDFOREACH()
 #  ADD_DEPENDENCIES(libmariadb DEPENDENCIES_FOR_PACKAGE)
 ELSE()
-  SET(USE_SYSTEM_INSTALLED_LIB TRUE)
   MESSAGE(STATUS "There is no Connector/C sub-project folder, linking against libmariadb installed on the system")
 ENDIF()
 
