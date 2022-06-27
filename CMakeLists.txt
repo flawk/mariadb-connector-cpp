@@ -515,11 +515,13 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   ENDIF()
 ENDIF()
 
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/install_test/CMakeLists.txt.in
-               ${CMAKE_SOURCE_DIR}/install_test/CMakeLists.txt @ONLY)
 # Packaging
 INCLUDE(cmake/packaging.cmake)
 MESSAGE(STATUS "Package Name: ${CPACK_PACKAGE_FILE_NAME}")
 MESSAGE(STATUS "License File: ${CPACK_RESOURCE_FILE_LICENSE}")
 MESSAGE(STATUS "ReadMe File: ${CPACK_PACKAGE_DESCRIPTION_FILE}")
 MESSAGE(STATUS "Source Package Filename: ${CPACK_SOURCE_PACKAGE_FILE_NAME}.${CPACK_SOURCE_GENERATOR}")
+
+# Install test cmake configuration should go after packaging.cmake
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/install_test/CMakeLists.txt.in
+               ${CMAKE_SOURCE_DIR}/install_test/CMakeLists.txt @ONLY)
