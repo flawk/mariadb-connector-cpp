@@ -2,19 +2,13 @@
 
 set -e
 
-export CCPP_DIR=/home/travis/build/mariadb-corporation/mariadb-connector-cpp
-export TEST_UID=$TEST_DB_USER
-export TEST_SERVER=$TEST_DB_HOST
-export TEST_PASSWORD=$TEST_DB_PASSWORD
-export TEST_PORT=$TEST_DB_PORT
-export TEST_SCHEMA=testcpp
-if ["${TEST_REQUIRE_TLS}" = "1"] ; then
-  export TEST_USETLS=true
-fi
-
 # Setting test environment before building connector to configure tests default credentials
 if [ "$TRAVIS_OS_NAME" = "windows" ] ; then
   echo "build from windows"
+  ls -l
+  if [ -e ./settestenv.sh ] ; then
+    source ./settestenv.sh
+  fi
 else
   echo "build from linux"
   export SSLCERT=$TEST_DB_SERVER_CERT
@@ -24,6 +18,16 @@ else
   if [ -n "$MYSQL_TEST_SSL_PORT" ] ; then
     export TEST_SSL_PORT=$MYSQL_TEST_SSL_PORT
   fi
+fi
+
+export CCPP_DIR=/home/travis/build/mariadb-corporation/mariadb-connector-cpp
+export TEST_UID=$TEST_DB_USER
+export TEST_SERVER=$TEST_DB_HOST
+export TEST_PASSWORD=$TEST_DB_PASSWORD
+export TEST_PORT=$TEST_DB_PORT
+export TEST_SCHEMA=testcpp
+if [ "${TEST_REQUIRE_TLS}" = "1" ] ; then
+  export TEST_USETLS=true
 fi
 
 if [ "$TRAVIS_OS_NAME" = "windows" ] ; then
@@ -42,9 +46,10 @@ cmake --build . --config RelWithDebInfo
 if [ -n "$server_branch" ] ; then
 
   ###################################################################################################################
-  # run server test suite
+  # Building server for testing
   ###################################################################################################################
-  echo "run server test suite"
+  echo "Testing against built from the source server is not supported at the moment"
+  exit 1
 
   # change travis localhost to use only 127.0.0.1
   sudo sed -i 's/127\.0\.1\.1 localhost/127.0.0.1 localhost/' /etc/hosts
