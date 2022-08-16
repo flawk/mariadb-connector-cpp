@@ -42,6 +42,8 @@
 
 #include <memory>
 #include <list>
+#include <thread>
+#include <functional>
 
 namespace testsuite
 {
@@ -2135,6 +2137,9 @@ void connection::setTransactionIsolation()
   bool have_innodb=false;
   int cant_be_changed_error= -1;
   int server_dependent_insert= -1;
+  if (std::getenv("srv") != nullptr && strcmp(std::getenv("srv"), "mysql") == 0) {
+    SKIP("Skipping test for mysql since doesn't use tx_isolation");
+  }
 
   stmt.reset(con->createStatement());
   try
@@ -3185,8 +3190,8 @@ void connection::cached_sha2_auth()
     //need to close connection, otherwise will use fast auth!
     con->close();
     con.reset(driver->connect(opts));
-    FAIL("caching_sha2_password can't be used on unexcrypted connection");
-    throw "caching_sha2_password can't be used on unexcrypted connection";
+    FAIL("caching_sha2_password can't be used on unencrypted connection");
+    throw "caching_sha2_password can't be used on unencrypted connection";
   }
   catch(std::exception &e)
   {
@@ -3298,15 +3303,6 @@ void connection::concpp94_loadLocalInfile()
       SKIP("local_infile is OFF at the server, and test could not change that. Doesn't make sense to continue the test");
     }
   }
-  try {
-    stmt->execute("LOAD DATA LOCAL INFILE 'nonexistent.txt' INTO TABLE nonexistent(b)");
-  }
-  catch (sql::SQLException& e) {
-    if (e.getErrorCode() != 1148 && e.getErrorCode() != 4166) {
-      FAIL("Wrong error code - local infile is allowed");
-    }
-    //ASSERT_EQUALS(4166, e.getErrorCode());
-  }
 
   p["user"] = user;
   p["password"] = passwd;
@@ -3321,11 +3317,49 @@ void connection::concpp94_loadLocalInfile()
   }
   catch (sql::SQLException& e) {
     if (e.getErrorCode() == 1148 || e.getErrorCode() == 4166) {
+      printf("\n# ERR: Caught sql::SQLException at ::%d  [%s] (%d/%s)\n", __LINE__, e.what(), e.getErrorCode(), e.getSQLStateCStr());
+      printf("# ");
       FAIL("Wrong error code - local infile is still not allowed");
     }
     //ASSERT(4166!=e.getErrorCode());
     ASSERT_EQUALS("42S02", e.getSQLState());
   }
+}
+
+
+void connection::concpp105_conn_concurrency()
+{
+  sql::Properties p{{"user", user}, {"password", passwd}};
+  std::vector<std::function<void()>> t1cbs;
+  std::vector<std::function<void()>> t2cbs;
+
+  /* There is no sense to test this against SkySQL and diatant servers in general */
+  if (std::getenv("SKYSQL") != nullptr || std::getenv("SKYSQL_HA") != nullptr) {
+    SKIP("It's not necessary to run this test against SkySQL");
+  }
+  for (int i = 0; i < 500; i++) {
+    t1cbs.push_back([&] {
+      std::unique_ptr<sql::Connection> conn(driver->connect(url, p));
+      //std::cout << "# t1:" << conn->getHostname().c_str() << std::endl;
+      });
+
+    t2cbs.push_back([&] {
+      std::unique_ptr<sql::Connection> conn(driver->connect(url, p));
+      //std::cout << "# t2:" << conn->getHostname().c_str() << std::endl;
+      });
+  }
+
+  std::thread t1([&] {
+    for (auto& cb : t1cbs)
+      cb();
+    });
+  std::thread t2([&] {
+    for (auto& cb : t2cbs)
+      cb();
+    });
+
+  t1.join();
+  t2.join();
 }
 
 } /* namespace connection */
