@@ -543,10 +543,10 @@ namespace sql
         false}},
       {
         "useBulkStmts", {"useBulkStmts",
-        "0.9.1",
-        "Use dedicated COM_STMT_BULK_EXECUTE protocol for batch "
-        "insert when possible. (batch without Statement.RETURN_GENERATED_KEYS and streams) to have faster batch. "
-        "(significant only if server MariaDB >= 10.2.7)",
+        "1.0.2",
+        "Use dedicated COM_STMT_BULK_EXECUTE protocol for executeBatch if "
+        "possible(batch without Statement::RETURN_GENERATED_KEYS and streams). Can be significanlty faster."
+        "(works only with server MariaDB >= 10.2.7)",
         false,
         false}},
       {
@@ -1054,8 +1054,9 @@ namespace sql
       if (options->cacheCallableStmts || options->cachePrepStmts) {
         throw SQLFeatureNotImplementedException("Callable/Prepared statement caches are not supported yet");
       }
-      if (options->defaultFetchSize < 0){
-        options->defaultFetchSize= 0;
+
+      if (options->defaultFetchSize != 0){
+        throw SQLFeatureNotImplementedException("ResultSet streaming is not supported in this version");
       }
 
       if (credentialPlugin && credentialPlugin->mustUseSsl())
@@ -1064,7 +1065,7 @@ namespace sql
       }
 
       if (options->usePipelineAuth) {
-        SQLFeatureNotSupportedException("Pipe identification is not supported yet");
+        throw SQLFeatureNotSupportedException("Pipe identification is not supported yet");
       }
 
       if (options->useCharacterEncoding.compare("utf8") == 0) {

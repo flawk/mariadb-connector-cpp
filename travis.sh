@@ -1,6 +1,14 @@
 #!/bin/bash
 
-set -e
+set -ex
+
+if [ -n "$BENCH" ] ; then
+  sudo benchmark/build.sh
+  cd benchmark
+  sudo ./installation.sh
+  sudo ./launch.sh
+  exit
+fi
 
 # Setting test environment before building connector to configure tests default credentials
 if [ "$TRAVIS_OS_NAME" = "windows" ] ; then
@@ -26,9 +34,12 @@ export TEST_SERVER=$TEST_DB_HOST
 export TEST_PASSWORD=$TEST_DB_PASSWORD
 export TEST_PORT=$TEST_DB_PORT
 export TEST_SCHEMA=testcpp
+export TEST_VERBOSE=true
 if [ "${TEST_REQUIRE_TLS}" = "1" ] ; then
   export TEST_USETLS=true
 fi
+
+sudo apt install cmake
 
 if [ "$TRAVIS_OS_NAME" = "windows" ] ; then
   cmake -DCONC_WITH_MSI=OFF -DCONC_WITH_UNIT_TESTS=OFF -DWITH_MSI=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_SSL=SCHANNEL -DTEST_HOST="jdbc:mariadb://$TEST_DB_HOST:$TEST_DB_PORT" .
